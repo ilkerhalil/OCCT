@@ -53,3 +53,4 @@ win64
 /stamp*
 /build*
 /install
+.DS_Store
