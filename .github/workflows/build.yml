@@ -9,7 +9,7 @@ env:
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
+  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -23,73 +23,119 @@ jobs:
       uses: carlosperate/download-file-action@v1.0.3
       id: freetype-binary
       with:
-        file-url: 'https://download.savannah.gnu.org/releases/freetype/freetype-2.5.3.tar.gz'
-        file-name: "freetype.tar.gz"
-        location: "3rdparty"
-    - name: Untar FreeType
+        file-url: 'https://github.com/ubawurinna/freetype-windows-binaries/releases/download/v2.6.5/freetype-2.6.5.zip'
+        file-name: "freetype.zip"
+        location: "${{github.workspace}}/3rdparty"
+    - name: Unzip FreeType
+      working-directory: ${{github.workspace}}/3rdparty
+      shell: bash
       run: |
-        New-Item -Name "freetype" -ItemType "directory"
-        tar xzvf ${{ steps.freetype-binary.outputs.file-path }} --directory ./3rdparty
+        mkdir freetype
+        unzip freetype.zip -d freetype
+        
+    - name: Install Doxygen
+      run: |
+        choco install doxygen.install
         
     - name: Get Tcl Source
       uses: actions/checkout@v2
       with:
         repository: tcltk/tcl
-        ref: core-8-6-11
-        path: ./3rdparty/tcl
+        ref: core-8-6-10
+        path: ${{github.workspace}}/3rdparty/tcl
     
     - name: Get Tk Source
       uses: actions/checkout@v2
       with:
         repository: tcltk/tk
         ref: core-8-6-11-1
-        path: "./3rdparty/tk"
+        path: ${{github.workspace}}/3rdparty/tk
     
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: What have we got?
+    - name: Install OCCT-Modified Tcl files
       run: |
-        Get-ChildItem -Path .
-        Get-ChildItem -Path 3rdparty
-        Get-ChildItem -Path 3rdparty/tcl
-        Get-ChildItem -Path 3rdparty/tk
-#        Get-ChildItem -Path StirlingLabs/Tcl
-#        Get-ChildItem -Path StirlingLabs/Tk
-    
-    - name: Move OCCT-Modified Tcl files
+        Copy-Item -Path ${{github.workspace}}/StirlingLabs/tcl/win/* -Destination 3rdparty/tcl/win -force
+        Copy-Item -Path ${{github.workspace}}/StirlingLabs/tk/win/* -Destination 3rdparty/tk/win -force
+        New-Item -Path ${{github.workspace}}/3rdparty -Name tcltk -ItemType "directory"
+
+    - name: Build & Install Tcl
       run: |
-        Copy-Item -Path ./StirlingLabs/Tcl/* -Destination 3rdparty/tcl -force
-        Copy-Item -Path ./StirlingLabs/Tk/* -Destination 3rdparty/tk -force
-
-    - name: Build Tcl
-      run: .\3rdparty\tcl\buildall.vc.bat
+        ./buildall.vc.bat
+        ./buildall.vc.bat install
+      working-directory: ${{github.workspace}}/3rdparty/tcl/win
       env:
-        INSTALLDIR: 3rdparty
+        INSTALLDIR: ../../tcltk
 
-    - name: Build Tk
-      run: 3rdparty\tk\buildall.vc.bat
+    - name: Build & Install Tk
+      run: |
+        ./buildall.vc.bat
+        ./buildall.vc.bat install
+      working-directory: ${{github.workspace}}/3rdparty/tk/win
       env:
-        INSTALLDIR: 3rdparty
+        INSTALLDIR: ../../tcltk
 
     - name: What have we got?
       run: |
         Get-ChildItem -Path 3rdparty
-    
+        Get-ChildItem -Path 3rdparty/freetype
+        Get-ChildItem -Path 3rdparty/freetype/win64
+        Get-ChildItem -Path C:/Strawberry/c/lib/
+
+    - name: Bash File List
+      shell: bash
+      run: |
+        ls -la $GITHUB_WORKSPACE/3rdparty/freetype
+        
+    - name: Create versionless tcl/tk executables
+      run: |
+        Copy-Item -Path tclsh86.exe -Destination tclsh.exe -force
+        Copy-Item -Path wish86.exe -Destination wish.exe -force
+      working-directory: ${{github.workspace}}/3rdparty/tcltk/bin
+
+    - name: Create OCCT Build Environment
+      # Create a separate build directory
+      # We'll use this as our working directory for all subsequent commands
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Configure OCCT CMake
+      # Use a bash shell so we can use the same syntax for environment variable
+      # access regardless of the host operating system
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      # Note the current convention is to use the -S and -B options here to specify source 
+      # and build directories, but this is only available with CMake 3.13 and higher.  
+      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
+      run: >
+        cmake $GITHUB_WORKSPACE 
+        -DCMAKE_BUILD_TYPE=$BUILD_TYPE 
+        -DUSE_FREEIMAGE:BOOL=OFF
+        -DUSE_RAPIDJSON:BOOL=OFF
+        -DUSE_TBB:BOOL=OFF
+        -DUSE_VTK:BOOL=OFF
+        -D3RDPARTY_DIR=$GITHUB_WORKSPACE/3rdparty
+        -D3RDPARTY_FREETYPE_DIR=$GITHUB_WORKSPACE/3rdparty/freetype
+        -D3RDPARTY_FREETYPE_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/include
+        -D3RDPARTY_FREETYPE_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/win64
+        -D3RDPARTY_FREETYPE_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/win64
+        -D3RDPARTY_TCL_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
+        -D3RDPARTY_TCL_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
+        -D3RDPARTY_TCL_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin
+        -D3RDPARTY_TK_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
+        -D3RDPARTY_TK_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
+        -D3RDPARTY_TK_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin
+        -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+
     - name: Build OCCT
-      run: |
-        mkdir build
-        cd build
-        ccmake .. -DCMAKE_BUILD_TYPE=Release
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: cmake --build . --config $BUILD_TYPE
 
-
-      
-#    - name: Restore NuGet packages
-#      working-directory: ${{env.GITHUB_WORKSPACE}}
-#      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
-
-#    - name: Build
-#      working-directory: ${{env.GITHUB_WORKSPACE}}
-#      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-#      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-#      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+    - name: Test OCCT
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      # Execute tests defined by the CMake configuration.  
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C $BUILD_TYPE
