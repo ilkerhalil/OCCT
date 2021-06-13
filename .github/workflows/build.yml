@@ -126,6 +126,10 @@ jobs:
         -D3RDPARTY_TK_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
         -D3RDPARTY_TK_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+    - name: Read Error File
+      shell: bash
+      run: more D:/a/OCCT/OCCT/build/CMakeFiles/CMakeOutput.log
+      if: ${{ failure() }} 
 
     - name: Build OCCT
       working-directory: ${{github.workspace}}/build
