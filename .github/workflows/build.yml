@@ -92,7 +92,17 @@ jobs:
       run: |
         Copy-Item -Path tclsh86.exe -Destination tclsh.exe -force
         Copy-Item -Path wish86.exe -Destination wish.exe -force
+        Copy-Item -Path tk86.dll -Destination tk.dll -force
+        Copy-Item -Path tcl86.dll -Destination tcl.dll -force
       working-directory: ${{github.workspace}}/3rdparty/tcltk/bin
+
+    - name: Create versionless tcl/tk libs
+      run: |
+        Copy-Item -Path tk86.lib -Destination tk.lib -force
+        Copy-Item -Path tkstub86.lib -Destination tkstub.lib -force
+        Copy-Item -Path tcl86.lib -Destination tcl.lib -force
+        Copy-Item -Path tclstub86.lib -Destination tclstub.lib -force
+      working-directory: ${{github.workspace}}/3rdparty/tcltk/lib      
 
     - name: Create OCCT Build Environment
       # Create a separate build directory
@@ -120,7 +130,7 @@ jobs:
         -D3RDPARTY_FREETYPE_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/win64
         -D3RDPARTY_FREETYPE_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/win64
         -D3RDPARTY_TCL_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
-        -D3RDPARTY_TCL_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib/tcl8.6
+        -D3RDPARTY_TCL_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
         -D3RDPARTY_TCL_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin
         -D3RDPARTY_TK_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
         -D3RDPARTY_TK_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
