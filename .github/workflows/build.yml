@@ -80,10 +80,8 @@ jobs:
 
     - name: What have we got?
       run: |
-        Get-ChildItem -Path 3rdparty
-        Get-ChildItem -Path 3rdparty/freetype
-        Get-ChildItem -Path 3rdparty/freetype/win64
-        Get-ChildItem -Path C:/Strawberry/c/lib/
+        Get-ChildItem  -recurse -Path 3rdparty
+
 
     - name: Bash File List
       shell: bash
