@@ -36,6 +36,7 @@ jobs:
         cp freetype/win64/freetype.dll freetype/lib
         cp freetype/win64/freetype.lib freetype/lib
         cp freetype/win64/freetype.lib freetype/bin
+        rm -rf /Strawberry
     - name: Install Doxygen
       run: |
         choco install doxygen.install
