@@ -13,7 +13,8 @@ env:
 
 jobs:
   build:
-    runs-on: windows-latest
+   runs-on: windows-latest
+   container: "mcr.microsoft.com/windows/servercore:ltsc2019"
 
     steps:
     - name: Get OCCT Source
