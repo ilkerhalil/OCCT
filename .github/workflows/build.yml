@@ -32,8 +32,8 @@ jobs:
       run: |
         mkdir freetype
         unzip freetype.zip -d freetype
-        Copy-Item -Path freetype/win64/freetype.dll -Destination freetype/bin/ -force
-        Copy-Item -Path freetype/win64/freetype.lib -Destination freetype/lib/ -force
+        mv freetype/win64/freetype.dll freetype/bin/freetype.dll
+        mv freetype/win64/freetype.lib freetype/lib/freetype.lib
     - name: Install Doxygen
       run: |
         choco install doxygen.install
