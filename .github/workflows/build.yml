@@ -32,8 +32,9 @@ jobs:
       run: |
         mkdir freetype
         unzip freetype.zip -d freetype
-        mv freetype/win64/freetype.dll freetype/bin
-        mv freetype/win64/freetype.lib freetype/lib
+        cp freetype/win64/freetype.dll freetype/bin
+        cp freetype/win64/freetype.lib freetype/lib
+        cp freetype/win64/freetype.lib freetype/bin
     - name: Install Doxygen
       run: |
         choco install doxygen.install
@@ -128,7 +129,7 @@ jobs:
         -D3RDPARTY_DIR=$GITHUB_WORKSPACE/3rdparty
         -D3RDPARTY_FREETYPE_DIR=$GITHUB_WORKSPACE/3rdparty/freetype
         -D3RDPARTY_FREETYPE_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/include
-        -D3RDPARTY_FREETYPE_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/lib
+        -D3RDPARTY_FREETYPE_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/bin
         -D3RDPARTY_FREETYPE_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/bin
         -D3RDPARTY_TCL_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
         -D3RDPARTY_TCL_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
@@ -136,7 +137,7 @@ jobs:
         -D3RDPARTY_TK_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
         -D3RDPARTY_TK_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
         -D3RDPARTY_TK_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin
-        -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON --debug-find
+        -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
     - name: Read Error File
       run: cat D:/a/OCCT/OCCT/build/CMakeFiles/CMakeOutput.log
       if: ${{ failure() }} 
