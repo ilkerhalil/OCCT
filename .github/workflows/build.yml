@@ -33,6 +33,7 @@ jobs:
         mkdir freetype
         unzip freetype.zip -d freetype
         cp freetype/win64/freetype.dll freetype/bin
+        cp freetype/win64/freetype.dll freetype/lib
         cp freetype/win64/freetype.lib freetype/lib
         cp freetype/win64/freetype.lib freetype/bin
     - name: Install Doxygen
