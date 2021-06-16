@@ -91,21 +91,21 @@ jobs:
       run: |
         ls -la $GITHUB_WORKSPACE/3rdparty/freetype
         
-    - name: Create versionless tcl/tk executables
-      run: |
-        Copy-Item -Path tclsh86.exe -Destination tclsh.exe -force
-        Copy-Item -Path wish86.exe -Destination wish.exe -force
-        Copy-Item -Path tk86.dll -Destination tk.dll -force
-        Copy-Item -Path tcl86.dll -Destination tcl.dll -force
-      working-directory: ${{github.workspace}}/3rdparty/tcltk/bin
+    # - name: Create versionless tcl/tk executables
+    #   run: |
+    #     Copy-Item -Path tclsh86.exe -Destination tclsh.exe -force
+    #     Copy-Item -Path wish86.exe -Destination wish.exe -force
+    #     Copy-Item -Path tk86.dll -Destination tk.dll -force
+    #     Copy-Item -Path tcl86.dll -Destination tcl.dll -force
+    #   working-directory: ${{github.workspace}}/3rdparty/tcltk/bin
 
-    - name: Create versionless tcl/tk libs
-      run: |
-        Copy-Item -Path tk86.lib -Destination tk.lib -force
-        Copy-Item -Path tkstub86.lib -Destination tkstub.lib -force
-        Copy-Item -Path tcl86.lib -Destination tcl.lib -force
-        Copy-Item -Path tclstub86.lib -Destination tclstub.lib -force
-      working-directory: ${{github.workspace}}/3rdparty/tcltk/lib      
+    # - name: Create versionless tcl/tk libs
+    #   run: |
+    #     Copy-Item -Path tk86.lib -Destination tk.lib -force
+    #     Copy-Item -Path tkstub86.lib -Destination tkstub.lib -force
+    #     Copy-Item -Path tcl86.lib -Destination tcl.lib -force
+    #     Copy-Item -Path tclstub86.lib -Destination tclstub.lib -force
+    #   working-directory: ${{github.workspace}}/3rdparty/tcltk/lib      
 
     - name: Create OCCT Build Environment
       # Create a separate build directory
