@@ -28,15 +28,14 @@ jobs:
         location: "${{github.workspace}}/3rdparty"
     - name: Unzip FreeType
       working-directory: ${{github.workspace}}/3rdparty
-      shell: bash
       run: |
         mkdir freetype
-        unzip freetype.zip -d freetype
-        cp freetype/win64/freetype.dll freetype/bin
-        cp freetype/win64/freetype.dll freetype/lib
-        cp freetype/win64/freetype.lib freetype/lib
-        cp freetype/win64/freetype.lib freetype/bin
-        rm -rf /Strawberry
+        Expand-Archive -LiteralPath 'freetype.zip' -DestinationPath C:\freetype
+        Copy-Item -Path freetype/win64/freetype.dll -Destination freetype/bin -force
+        Copy-Item -Path freetype/win64/freetype.dll -Destination freetype/lib -force
+        Copy-Item -Path freetype/win64/freetype.lib -Destination freetype/lib -force
+        Copy-Item -Path freetype/win64/freetype.lib -Destination freetype/bin -force
+        
     - name: Install Doxygen
       run: |
         choco install doxygen.install
@@ -87,10 +86,10 @@ jobs:
         Get-ChildItem  -recurse -Path 3rdparty
 
 
-    - name: Bash File List
-      shell: bash
-      run: |
-        ls -la $GITHUB_WORKSPACE/3rdparty/freetype
+    # - name: Bash File List
+    #   shell: bash
+    #   run: |
+    #     ls -la $GITHUB_WORKSPACE/3rdparty/freetype
         
     - name: Create versionless tcl/tk executables
       run: |
