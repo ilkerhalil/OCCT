@@ -31,10 +31,10 @@ jobs:
       run: |
         mkdir freetype
         Expand-Archive -LiteralPath 'freetype.zip' -DestinationPath C:\freetype
-        Copy-Item -Path freetype/win64/freetype.dll -Destination freetype/bin -force
-        Copy-Item -Path freetype/win64/freetype.dll -Destination freetype/lib -force
-        Copy-Item -Path freetype/win64/freetype.lib -Destination freetype/lib -force
-        Copy-Item -Path freetype/win64/freetype.lib -Destination freetype/bin -force
+        # Copy-Item -Path C:\freetype\win64\freetype.dll -Destination freetype/bin -force
+        # Copy-Item -Path C:\freetype\win64\freetype.dll -Destination freetype/lib -force
+        # Copy-Item -Path C:\freetype\win64\freetype.lib -Destination freetype/lib -force
+        # Copy-Item -Path C:\freetype\win64\freetype.lib -Destination freetype/bin -force
         
     - name: Install Doxygen
       run: |
