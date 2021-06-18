@@ -32,7 +32,7 @@ jobs:
         mkdir freetype
         New-Item -Path ${{github.workspace}}/3rdparty/freetype -Name bin -ItemType "directory"
         New-Item -Path ${{github.workspace}}/3rdparty/freetype -Name lib -ItemType "directory"
-        Expand-Archive -LiteralPath 'freetype.zip' -DestinationPath C:\freetype -Force
+        Expand-Archive -LiteralPath 'freetype.zip' -DestinationPath ${{github.workspace}}/3rdparty/freetype -Force
         Copy-Item -Path C:\freetype\win64\freetype.dll -Destination freetype/bin -force
         Copy-Item -Path C:\freetype\win64\freetype.dll -Destination freetype/lib -force
         Copy-Item -Path C:\freetype\win64\freetype.lib -Destination freetype/lib -force
