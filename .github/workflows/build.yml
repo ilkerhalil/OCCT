@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: windows-latest
 
     steps:
     - name: Get OCCT Source
@@ -83,7 +83,7 @@ jobs:
 
     - name: What have we got?
       run: |
-        Get-ChildItem  -recurse -Path 3rdparty
+        Get-ChildItem  -Path 3rdparty
 
 
     # - name: Bash File List
@@ -115,7 +115,7 @@ jobs:
     - name: Configure OCCT CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
-      #shell: bash
+      shell: bash
       #working-directory: ${{github.workspace}}/build
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
@@ -127,25 +127,20 @@ jobs:
         -DUSE_RAPIDJSON:BOOL=OFF
         -DUSE_TBB:BOOL=OFF
         -DUSE_VTK:BOOL=OFF
-        -D3RDPARTY_DIR=$GITHUB_WORKSPACE/3rdparty
-        -D3RDPARTY_FREETYPE_DIR=$GITHUB_WORKSPACE/3rdparty/freetype
-        -D3RDPARTY_FREETYPE_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/include
-        -D3RDPARTY_FREETYPE_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/win64
-        -D3RDPARTY_FREETYPE_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/freetype/win64
-        -D3RDPARTY_TCL_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
-        -D3RDPARTY_TCL_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
-        -D3RDPARTY_TCL_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin
-        -D3RDPARTY_TK_INCLUDE_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin 
-        -D3RDPARTY_TK_LIBRARY_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/lib
-        -D3RDPARTY_TK_DLL_DIR=$GITHUB_WORKSPACE/3rdparty/tcltk/bin
+        -D3RDPARTY_DIR=$GITHUB_WORKSPACE\3rdparty
+        -D3RDPARTY_FREETYPE_DIR=$GITHUB_WORKSPACE\3rdparty\freetype
+        -D3RDPARTY_FREETYPE_INCLUDE_DIR=$GITHUB_WORKSPACE\3rdparty\freetype\include
+        -D3RDPARTY_FREETYPE_LIBRARY_DIR=$GITHUB_WORKSPACE\3rdparty\freetype\bin
+        -D3RDPARTY_FREETYPE_DLL_DIR=$GITHUB_WORKSPACE\3rdparty\freetype\bin
+        -D3RDPARTY_TCL_INCLUDE_DIR=$GITHUB_WORKSPACE\3rdparty/tcltk/bin 
+        -D3RDPARTY_TCL_LIBRARY_DIR=$GITHUB_WORKSPACE\3rdparty/tcltk/lib
+        -D3RDPARTY_TCL_DLL_DIR=$GITHUB_WORKSPACE\3rdparty\tcltk\bin
+        -D3RDPARTY_TK_INCLUDE_DIR=$GITHUB_WORKSPACE\3rdparty\tcltk\bin 
+        -D3RDPARTY_TK_LIBRARY_DIR=$GITHUB_WORKSPACE\3rdparty\tcltk\lib
+        -D3RDPARTY_TK_DLL_DIR=$GITHUB_WORKSPACE\3rdparty\tcltk\bin
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
       env:
         GITHUB_WORKSPACE: ${{github.workspace}}
-
-
-    - name: Read Error File
-      run: cat D:/a/OCCT/OCCT/build/CMakeFiles/CMakeOutput.log
-      if: ${{ failure() }} 
 
     - name: Build OCCT
       working-directory: ${{github.workspace}}/build
