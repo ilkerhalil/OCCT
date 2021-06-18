@@ -121,23 +121,23 @@ jobs:
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: >
-        cmake $env:GITHUB_WORKSPACE 
+        cmake D:\a\OCCT\OCCT 
         -DCMAKE_BUILD_TYPE=$BUILD_TYPE 
         -DUSE_FREEIMAGE:BOOL=OFF
         -DUSE_RAPIDJSON:BOOL=OFF
         -DUSE_TBB:BOOL=OFF
         -DUSE_VTK:BOOL=OFF
-        -D3RDPARTY_DIR=$env:GITHUB_WORKSPACE\3rdparty
-        -D3RDPARTY_FREETYPE_DIR=$env:GITHUB_WORKSPACE\3rdparty\freetype
-        -D3RDPARTY_FREETYPE_INCLUDE_DIR=$env:GITHUB_WORKSPACE\3rdparty\freetype\include
-        -D3RDPARTY_FREETYPE_LIBRARY_DIR=$env:GITHUB_WORKSPACE\3rdparty\freetype\bin
-        -D3RDPARTY_FREETYPE_DLL_DIR=$env:GITHUB_WORKSPACE\3rdparty\freetype\bin
-        -D3RDPARTY_TCL_INCLUDE_DIR=$env:GITHUB_WORKSPACE\3rdparty\tcltk\bin 
-        -D3RDPARTY_TCL_LIBRARY_DIR=$env:GITHUB_WORKSPACE\3rdparty\tcltk\lib
-        -D3RDPARTY_TCL_DLL_DIR=$env:GITHUB_WORKSPACE\3rdparty\tcltk\bin
-        -D3RDPARTY_TK_INCLUDE_DIR=$env:GITHUB_WORKSPACE\3rdparty\tcltk\bin 
-        -D3RDPARTY_TK_LIBRARY_DIR=$env:GITHUB_WORKSPACE\3rdparty\tcltk\lib
-        -D3RDPARTY_TK_DLL_DIR=$env:GITHUB_WORKSPACE\3rdparty\tcltk\bin
+        -D3RDPARTY_DIR=D:\a\OCCT\OCCT\3rdparty
+        -D3RDPARTY_FREETYPE_DIR=D:\a\OCCT\OCCT\3rdparty\freetype
+        -D3RDPARTY_FREETYPE_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\include
+        -D3RDPARTY_FREETYPE_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\bin
+        -D3RDPARTY_FREETYPE_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\bin
+        -D3RDPARTY_TCL_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin 
+        -D3RDPARTY_TCL_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib
+        -D3RDPARTY_TCL_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
+        -D3RDPARTY_TK_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin 
+        -D3RDPARTY_TK_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib
+        -D3RDPARTY_TK_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
       env:
         GITHUB_WORKSPACE: ${{github.workspace}}
