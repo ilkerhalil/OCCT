@@ -86,11 +86,6 @@ jobs:
         Get-ChildItem  -Path 3rdparty
 
 
-    # - name: Bash File List
-    #   shell: bash
-    #   run: |
-    #     ls -la $GITHUB_WORKSPACE/3rdparty/freetype
-        
     - name: Create versionless tcl/tk executables
       run: |
         Copy-Item -Path tclsh86.exe -Destination tclsh.exe -force
@@ -154,3 +149,11 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C Release
+
+    - uses: actions/upload-artifact@v2
+      name: occt-win
+      with:
+        name: occt-win
+        path: |
+          win64/
+        if-no-files-found: error
