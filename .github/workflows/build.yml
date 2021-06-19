@@ -147,7 +147,7 @@ jobs:
       #working-directory: ${{github.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config Release /m
+      run: cmake --build . --config Release -j 10
 
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
