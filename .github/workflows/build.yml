@@ -175,7 +175,8 @@ jobs:
           path: win64
       - name: Zip file
         run: |
-          tar -zcvf artifacts/occt-win.tar.gz win64/
+          apt-get install -y zip 
+          zip -r win64/
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -183,6 +184,6 @@ jobs:
         with:
           name: Occt
           files: |
-            artifacts/occt-win.tar.gz
+            artifacts/*.*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
