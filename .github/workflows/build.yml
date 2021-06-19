@@ -27,7 +27,7 @@ jobs:
         cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
     - name: Build 
       run: | 
-        ninja
+        ninja -j2
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
