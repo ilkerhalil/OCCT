@@ -27,7 +27,7 @@ jobs:
         cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
     - name: Build 
       run: | 
-        cmake --build . --config Release -j 5
+        cmake --build . --config Release
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
@@ -171,7 +171,7 @@ jobs:
       #working-directory: ${{github.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config Release -j 10
+      run: cmake --build . --config Release
 
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
@@ -187,6 +187,35 @@ jobs:
         path: |
           win64/vc14/
         if-no-files-found: error
+
+  osx:
+    runs-on: macos-latest
+    steps:
+    - name: Get OCCT Source
+      uses: actions/checkout@v2
+
+    - name: Install Depencies
+      run: |
+
+        brew install freetype
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cmake ..  -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+
+    - name: Build OCCT
+      run: |
+        cmake --build . --config Release
+
+    - uses: actions/upload-artifact@v2
+      name: occt-osx
+      with:
+        name: occt-osx
+        path: |
+          build/mac64/clang
+        if-no-files-found: error
+
   create-release:
     runs-on: ubuntu-latest
     needs: [linux,windows]
