@@ -165,11 +165,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: occt-win
-          path: win
+          path: win64
       - name: Zip file
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          tar czf artifacts/occt-win.tar.gz win/
+          tar -zcvf artifacts/occt-win.tar.gz win64/
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -177,6 +177,6 @@ jobs:
         with:
           name: Occt
           files: |
-            win/
+            artifacts/occt-win.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
