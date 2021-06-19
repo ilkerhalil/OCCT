@@ -194,16 +194,11 @@ jobs:
     - name: Get OCCT Source
       uses: actions/checkout@v2
 
-    - name: Install Depencies
-      run: |
-
-        brew install freetype
-
     - name: Configure CMake
       run: |
         mkdir build
         cmake -E make_directory build
-        cmake ..  -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+        cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 
     - name: Build OCCT
       run: |
@@ -219,7 +214,7 @@ jobs:
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [linux,windows]
+    needs: [linux,osx,windows]
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Download occt windows
@@ -231,13 +226,18 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: occt-linux
-          path: linux          
+          path: linux      
+      - name: Download occt osx
+        uses: actions/download-artifact@v2
+        with:
+          name: occt-osx
+          path: osx                    
       - name: Zip file
         run: |
-          apt-get install -y zip 
+          
           tar xvf artifacts/occt-win.zip -C win64
           tar xvf artifacts/occt-linux.tar.gz -C linux
-
+          tar xvf artifacts/occt-osx.tar.gz -C osx
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
