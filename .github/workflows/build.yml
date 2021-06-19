@@ -202,6 +202,7 @@ jobs:
     - name: Configure CMake
       run: |
         mkdir build
+        cmake -E make_directory build
         cmake ..  -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 
     - name: Build OCCT
