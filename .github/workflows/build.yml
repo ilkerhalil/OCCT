@@ -17,6 +17,30 @@ jobs:
     steps:
     - name: Get OCCT Source
       uses: actions/checkout@v2
+    - name: Install Depencies
+      run: | 
+        apt-get install -y tcl tk-dev build-essential libssl-dev libgl1-mesa-dev
+    - name: Config CMake
+      run: |
+        mkdir build
+        cmake -E make_directory build
+        cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+    - name: Build 
+      run: | 
+        cmake --build . --config Release -j 5
+    - name: Test OCCT
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.  
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C Release
+
+    - uses: actions/upload-artifact@v2
+      name: occt-linux
+      with:
+        name: occt-linux
+        path: |
+          lin64/gcc/
+        if-no-files-found: error        
 
   windows:
     runs-on: windows-latest
@@ -173,10 +197,16 @@ jobs:
         with:
           name: occt-win
           path: win64
+      - name: Download occt linux
+        uses: actions/download-artifact@v2
+        with:
+          name: occt-linux
+          path: linux          
       - name: Zip file
         run: |
           apt-get install -y zip 
-          zip -r win64/
+          tar xvf artifacts/occt-win.zip -C win64
+          tar xvf artifacts/occt-linux.tar.gz -C linux
 
       - name: Release
         uses: softprops/action-gh-release@v1
