@@ -27,7 +27,7 @@ jobs:
         cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
     - name: Build 
       run: | 
-        ninja -j2
+        ninja -j14
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
@@ -71,7 +71,8 @@ jobs:
     - name: Install Doxygen
       run: |
         choco install doxygen.install
-        
+        choco install ninja -y
+
     - name: Get Tcl Source
       uses: actions/checkout@v2
       with:
@@ -110,11 +111,6 @@ jobs:
       working-directory: ${{github.workspace}}/3rdparty/tk/win
       env:
         INSTALLDIR: ../../tcltk
-
-    - name: What have we got?
-      run: |
-        Get-ChildItem  -Path 3rdparty
-
 
     - name: Create versionless tcl/tk executables
       run: |
@@ -164,6 +160,7 @@ jobs:
         -D3RDPARTY_TK_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib
         -D3RDPARTY_TK_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+        -GNinja
       env:
         GITHUB_WORKSPACE: ${{github.workspace}}
 
@@ -171,7 +168,7 @@ jobs:
       #working-directory: ${{github.workspace}}/build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config Release
+      run: ninja -j14
 
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
@@ -196,13 +193,14 @@ jobs:
 
     - name: Configure CMake
       run: |
+        brew install ninja
         mkdir build
         cmake -E make_directory build
-        cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+        cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
 
     - name: Build OCCT
       run: |
-        cmake --build . --config Release
+        ninja -j14
 
     - uses: actions/upload-artifact@v2
       name: occt-osx
