@@ -231,10 +231,10 @@ jobs:
           path: osx                    
       - name: Zip file
         run: |
-          
-          tar -cvf artifacts/occt-win.zip win64/
-          tar -cvf artifacts/occt-linux.tar.gz linux/
-          tar -cvf artifacts/occt-osx.tar.gz osx/
+          mkdir artifacts
+          tar -cvf artifacts/occt-win.zip win64
+          tar -cvf artifacts/occt-linux.tar.gz linux
+          tar -cvf artifacts/occt-osx.tar.gz osx
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
