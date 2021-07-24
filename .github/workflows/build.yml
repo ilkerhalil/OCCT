@@ -215,17 +215,12 @@ jobs:
         cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -GNinja'
         buildDirectory: '${{ github.workspace }}/build'
         buildWithCMake: true
-    - name: ls Build dir
-      run: |
-        ls -R ${{ github.workspace }}/build
-
-
     - uses: actions/upload-artifact@v2
       name: occt-osx
       with:
         name: occt-osx
         path: |
-          ${{ github.workspace }}/build/mac64/clang/lib
+          ${{ github.workspace }}/build/mac64/clang/
         if-no-files-found: error
 
   create-release:
