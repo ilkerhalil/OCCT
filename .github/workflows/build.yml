@@ -51,7 +51,7 @@ jobs:
       with:
         name: occt-linux
         path: |
-          lin64/gcc/
+          ${{github.workspace}}/build/lin64/gcc/
         if-no-files-found: error
 
   windows:
