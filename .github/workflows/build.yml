@@ -17,20 +17,32 @@ jobs:
     steps:
     - name: Get OCCT Source
       uses: actions/checkout@v2
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
     - name: Install Depencies
-      run: | 
-        sudo apt-get install -y tcl tk-dev build-essential libssl-dev libgl1-mesa-dev ninja-build
-    - name: Config CMake
       run: |
+        sudo apt-get install -y tcl tk-dev build-essential libssl-dev libgl1-mesa-dev ninja-build
         mkdir build
-        cmake -E make_directory build
-        cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
-    - name: Build 
-      run: | 
+    # - name: Config CMake
+    #   run: |
+    #     mkdir build
+    #     #cmake -E make_directory build
+    #     #cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
+    - name: build with cmake
+      uses: lukka/run-cmake@v3
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -GNinja'
+        buildDirectory: '${{ github.workspace }}/build'
+        buildWithCMake: true
+    - name: Build
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         ninja -j14
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.  
+      # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C Release
 
@@ -40,7 +52,7 @@ jobs:
         name: occt-linux
         path: |
           lin64/gcc/
-        if-no-files-found: error        
+        if-no-files-found: error
 
   windows:
     runs-on: windows-latest
@@ -48,7 +60,7 @@ jobs:
     steps:
     - name: Get OCCT Source
       uses: actions/checkout@v2
-      
+
     - name: Download FreeType Binary
       uses: carlosperate/download-file-action@v1.0.3
       id: freetype-binary
@@ -67,7 +79,7 @@ jobs:
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.dll -Destination freetype/lib -force
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/lib -force
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/bin -force
-        
+
     - name: Install Doxygen
       run: |
         choco install doxygen.install
@@ -78,14 +90,14 @@ jobs:
         repository: tcltk/tcl
         ref: core-8-6-10
         path: ${{github.workspace}}/3rdparty/tcl
-    
+
     - name: Get Tk Source
       uses: actions/checkout@v2
       with:
         repository: tcltk/tk
         ref: core-8-6-11-1
         path: ${{github.workspace}}/3rdparty/tk
-    
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
@@ -125,7 +137,7 @@ jobs:
         Copy-Item -Path tkstub86.lib -Destination tkstub.lib -force
         Copy-Item -Path tcl86.lib -Destination tcl.lib -force
         Copy-Item -Path tclstub86.lib -Destination tclstub.lib -force
-      working-directory: ${{github.workspace}}/3rdparty/tcltk/lib      
+      working-directory: ${{github.workspace}}/3rdparty/tcltk/lib
 
     - name: Create OCCT Build Environment
       # Create a separate build directory
@@ -137,12 +149,12 @@ jobs:
       # access regardless of the host operating system
       shell: powershell
       #working-directory: ${{github.workspace}}/build
-      # Note the current convention is to use the -S and -B options here to specify source 
-      # and build directories, but this is only available with CMake 3.13 and higher.  
+      # Note the current convention is to use the -S and -B options here to specify source
+      # and build directories, but this is only available with CMake 3.13 and higher.
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: >
-        cmake D:\a\OCCT\OCCT 
-        -DCMAKE_BUILD_TYPE=$BUILD_TYPE 
+        cmake D:\a\OCCT\OCCT
+        -DCMAKE_BUILD_TYPE=$BUILD_TYPE
         -DUSE_FREEIMAGE:BOOL=OFF
         -DUSE_RAPIDJSON:BOOL=OFF
         -DUSE_TBB:BOOL=OFF
@@ -152,14 +164,14 @@ jobs:
         -D3RDPARTY_FREETYPE_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\include
         -D3RDPARTY_FREETYPE_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\bin
         -D3RDPARTY_FREETYPE_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\bin
-        -D3RDPARTY_TCL_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin 
+        -D3RDPARTY_TCL_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
         -D3RDPARTY_TCL_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib
         -D3RDPARTY_TCL_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
-        -D3RDPARTY_TK_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin 
+        -D3RDPARTY_TK_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
         -D3RDPARTY_TK_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib
         -D3RDPARTY_TK_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
-        
+
       env:
         GITHUB_WORKSPACE: ${{github.workspace}}
 
@@ -172,7 +184,7 @@ jobs:
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
       shell: bash
-      # Execute tests defined by the CMake configuration.  
+      # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C Release
 
@@ -223,12 +235,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: occt-linux
-          path: linux      
+          path: linux
       - name: Download occt osx
         uses: actions/download-artifact@v2
         with:
           name: occt-osx
-          path: osx                    
+          path: osx
       - name: Zip file
         run: |
           mkdir artifacts
@@ -243,4 +255,4 @@ jobs:
           files: |
             artifacts/*.*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
