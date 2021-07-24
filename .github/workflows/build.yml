@@ -36,10 +36,7 @@ jobs:
         cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -GNinja'
         buildDirectory: '${{ github.workspace }}/build'
         buildWithCMake: true
-    # - name: Build
-    #   run: |
-    #     export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-    #     ninja -j14
+
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
@@ -206,19 +203,25 @@ jobs:
       run: |
         brew install ninja
         mkdir build
-        cmake -E make_directory build
-        cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
-
-    - name: Build OCCT
-      run: |
-        ninja -j14
+        # cmake -E make_directory build
+        # cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+    - name: build with cmake
+      uses: lukka/run-cmake@v3
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -GNinja'
+        buildDirectory: '${{ github.workspace }}/build'
+        buildWithCMake: true
 
     - uses: actions/upload-artifact@v2
       name: occt-osx
       with:
         name: occt-osx
         path: |
-          mac64/clang
+          {{ github.workspace }}/build/mac64/clang
         if-no-files-found: error
 
   create-release:
