@@ -221,7 +221,7 @@ jobs:
       with:
         name: occt-osx
         path: |
-          {{ github.workspace }}/build/mac64/clang
+          mac64/clang
         if-no-files-found: error
 
   create-release:
