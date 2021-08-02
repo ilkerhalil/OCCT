@@ -1,4 +1,6 @@
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d71b34c235444e828d653dab94e97b0b)](https://www.codacy.com/gh/StirlingLabs/OCCT/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StirlingLabs/OCCT&amp;utm_campaign=Badge_Grade)[![CodeFactor](https://www.codefactor.io/repository/github/stirlinglabs/occt/badge)](https://www.codefactor.io/repository/github/stirlinglabs/occt)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d71b34c235444e828d653dab94e97b0b)](https://www.codacy.com/gh/StirlingLabs/OCCT/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StirlingLabs/OCCT&amp;utm_campaign=Badge_Grade)
+[![CodeFactor](https://www.codefactor.io/repository/github/stirlinglabs/occt/badge)](https://www.codefactor.io/repository/github/stirlinglabs/occt)
+![GitHub Workflow Status of autoBuildLibrary](https://img.shields.io/github/workflow/status/StirlingLabs/OCCT/Build/autoBuildLibrary?style=flat-square)
 
 Open CASCADE Technology
 =======================
