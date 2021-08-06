@@ -26,70 +26,23 @@ IMPLEMENT_STANDARD_RTTIEXT(SelectMgr_BaseFrustum, SelectMgr_BaseIntersector)
 // purpose  :
 //=======================================================================
 SelectMgr_BaseFrustum::SelectMgr_BaseFrustum()
-: myPixelTolerance (2),
-  myIsOrthographic (Standard_True)
+: myPixelTolerance (2)
 {
   myBuilder = new SelectMgr_FrustumBuilder();
 }
 
 //=======================================================================
 // function : SetCamera
-// purpose  : Passes camera projection and orientation matrices to builder
+// purpose  :
 //=======================================================================
 void SelectMgr_BaseFrustum::SetCamera (const Handle(Graphic3d_Camera)& theCamera)
 {
-  myCamera = theCamera;
-  myBuilder->SetWorldViewMatrix (theCamera->OrientationMatrix());
-  myBuilder->SetProjectionMatrix (theCamera->ProjectionMatrix(), theCamera->IsZeroToOneDepth());
-  myBuilder->SetWorldViewProjState (theCamera->WorldViewProjState());
-  myIsOrthographic = theCamera->IsOrthographic();
-  myBuilder->InvalidateViewport();
-}
-
-//=======================================================================
-// function : SetCamera
-// purpose  : Passes camera projection and orientation matrices to builder
-//=======================================================================
-void SelectMgr_BaseFrustum::SetCamera (const Graphic3d_Mat4d& theProjection,
-                                       const Graphic3d_Mat4d& theWorldView,
-                                       const Standard_Boolean theIsOrthographic,
-                                       const Graphic3d_WorldViewProjState& theWVPState)
-{
-  myCamera.Nullify();
-  myBuilder->SetWorldViewMatrix (theWorldView);
-  myBuilder->SetProjectionMatrix (theProjection, false);
-  myBuilder->SetWorldViewProjState (theWVPState);
-  myIsOrthographic = theIsOrthographic;
-}
-
-//=======================================================================
-// function : ProjectionMatrix
-// purpose  : Returns current camera projection transformation common for
-//            all selecting volumes
-//=======================================================================
-const Graphic3d_Mat4d& SelectMgr_BaseFrustum::ProjectionMatrix() const
-{
-  return myBuilder->ProjectionMatrix();
-}
-
-//=======================================================================
-// function : WorldViewMatrix
-// purpose  : Returns current camera world view transformation common for
-//            all selecting volumes
-//=======================================================================
-const Graphic3d_Mat4d& SelectMgr_BaseFrustum::WorldViewMatrix() const
-{
-  return myBuilder->WorldViewMatrix();
-}
-
-//=======================================================================
-// function : WorldViewProjState
-// purpose  : Returns current camera world view projection transformation
-//            state
-//=======================================================================
-const Graphic3d_WorldViewProjState& SelectMgr_BaseFrustum::WorldViewProjState() const
-{
-  return myBuilder->WorldViewProjState();
+  SelectMgr_BaseIntersector::SetCamera (theCamera);
+  if (!myBuilder.IsNull())
+  {
+    myBuilder->SetCamera (theCamera);
+    myBuilder->InvalidateViewport();
+  }
 }
 
 //=======================================================================
@@ -140,6 +93,53 @@ void SelectMgr_BaseFrustum::SetBuilder (const Handle(SelectMgr_FrustumBuilder)& 
 {
   myBuilder.Nullify();
   myBuilder = theBuilder;
+  if (!myBuilder.IsNull())
+  {
+    myCamera = myBuilder->Camera();
+  }
+}
+
+//=======================================================================
+// function : IsBoundariesIntersectSphere
+// purpose  :
+//=======================================================================
+Standard_Boolean SelectMgr_BaseFrustum::IsBoundaryIntersectSphere (const gp_Pnt& theCenter,
+                                                                   const Standard_Real theRadius,
+                                                                   const gp_Dir& thePlaneNormal,
+                                                                   const TColgp_Array1OfPnt& theBoundaries,
+                                                                   Standard_Boolean& theBoundaryInside) const
+{
+  for (Standard_Integer anIdx = theBoundaries.Lower(); anIdx < theBoundaries.Upper(); ++anIdx)
+  {
+    const Standard_Integer aNextIdx = ((anIdx + 1) == theBoundaries.Upper()) ? theBoundaries.Lower() : (anIdx + 1);
+    const gp_Pnt aPnt1 = theBoundaries.Value (anIdx);
+    const gp_Pnt aPnt2 = theBoundaries.Value (aNextIdx);
+    if (aPnt1.Distance (aPnt2) < Precision::Confusion())
+    {
+      continue;
+    }
+
+    // Projections of the points on the plane
+    const gp_Pnt aPntProj1 = aPnt1.XYZ() - thePlaneNormal.XYZ() * aPnt1.XYZ().Dot (thePlaneNormal.XYZ());
+    const gp_Pnt aPntProj2 = aPnt2.XYZ() - thePlaneNormal.XYZ() * aPnt2.XYZ().Dot (thePlaneNormal.XYZ());
+    if (aPntProj1.Distance (theCenter) < theRadius || aPntProj2.Distance (theCenter) < theRadius) // polygon intersects the sphere
+    {
+      theBoundaryInside = Standard_True;
+      return Standard_True;
+    }
+
+    gp_Dir aRayDir (gp_Vec (aPntProj1, aPntProj2));
+    Standard_Real aTimeEnter = 0.0, aTimeLeave = 0.0;
+    if (RaySphereIntersection (theCenter, theRadius, aPntProj1, aRayDir, aTimeEnter, aTimeLeave))
+    {
+      if ((aTimeEnter > 0 && aTimeEnter < aPntProj1.Distance (aPntProj2))
+       || (aTimeLeave > 0 && aTimeLeave < aPntProj1.Distance (aPntProj2)))
+      {
+        return Standard_True; // polygon crosses  the sphere
+      }
+    }
+  }
+  return Standard_False;
 }
 
 //=======================================================================
@@ -152,7 +152,5 @@ void SelectMgr_BaseFrustum::DumpJson (Standard_OStream& theOStream, Standard_Int
   OCCT_DUMP_BASE_CLASS (theOStream, theDepth, SelectMgr_BaseIntersector)
 
   OCCT_DUMP_FIELD_VALUE_NUMERICAL (theOStream, myPixelTolerance)
-  OCCT_DUMP_FIELD_VALUE_NUMERICAL (theOStream, myIsOrthographic)
   OCCT_DUMP_FIELD_VALUE_POINTER (theOStream, myBuilder)
-  OCCT_DUMP_FIELD_VALUE_POINTER (theOStream, myCamera)
 }

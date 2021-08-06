@@ -17,6 +17,7 @@
 #include <BinTools.hxx>
 #include <BinTools_ShapeSet.hxx>
 #include <FSD_FileHeader.hxx>
+#include <OSD_FileSystem.hxx>
 #include <OSD_OpenFile.hxx>
 #include <Storage_StreamTypeMismatchError.hxx>
 
@@ -42,7 +43,7 @@ Standard_OStream& BinTools::PutInteger(Standard_OStream& OS, const Standard_Inte
 #ifdef DO_INVERSE
       anIntValue = InverseInt (aValue);
 #endif
-  OS.write((char*)&anIntValue, sizeof(Standard_Integer));  
+  OS.write ((char*)&anIntValue, sizeof (Standard_Integer));  
   return OS;
 }
 
@@ -56,9 +57,9 @@ Standard_OStream& BinTools::PutReal (Standard_OStream& theOS,
 {
 #ifdef DO_INVERSE
   const Standard_Real aRValue = InverseReal (theValue);
-  theOS.write((char*)&aRValue, sizeof(Standard_Real));
+  theOS.write ((char*)&aRValue, sizeof (Standard_Real));
 #else
-  theOS.write((char*)&theValue, sizeof(Standard_Real));
+  theOS.write ((char*)&theValue, sizeof (Standard_Real));
 #endif
   return theOS;
 }
@@ -200,7 +201,7 @@ void BinTools::Read (TopoDS_Shape& theShape, Standard_IStream& theStream,
   BinTools_ShapeSet aShapeSet;
   aShapeSet.SetWithTriangles(Standard_True);
   aShapeSet.Read (theStream, theRange);
-  aShapeSet.Read (theShape, theStream, aShapeSet.NbShapes());
+  aShapeSet.ReadSubs (theShape, theStream, aShapeSet.NbShapes());
 }
 
 //=======================================================================
@@ -233,12 +234,13 @@ Standard_Boolean BinTools::Write (const TopoDS_Shape& theShape,
 Standard_Boolean BinTools::Read (TopoDS_Shape& theShape, const Standard_CString theFile,
                                  const Message_ProgressRange& theRange)
 {
-  std::filebuf aBuf;
-  OSD_OpenStream (aBuf, theFile, std::ios::in | std::ios::binary);
-  if (!aBuf.is_open())
+  const Handle(OSD_FileSystem)& aFileSystem = OSD_FileSystem::DefaultFileSystem();
+  opencascade::std::shared_ptr<std::istream> aStream = aFileSystem->OpenIStream (theFile, std::ios::in | std::ios::binary);
+  if (aStream.get() == NULL)
+  {
     return Standard_False;
+  }
 
-  Standard_IStream aStream (&aBuf);
-  Read (theShape, aStream, theRange);
-  return aStream.good();
+  Read (theShape, *aStream, theRange);
+  return aStream->good();
 }

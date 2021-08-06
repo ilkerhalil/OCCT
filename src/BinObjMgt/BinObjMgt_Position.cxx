@@ -1,7 +1,4 @@
-// Created on: 1995-12-08
-// Created by: Jacques GOUSSARD
-// Copyright (c) 1995-1999 Matra Datavision
-// Copyright (c) 1999-2014 OPEN CASCADE SAS
+// Copyright (c) 2021 OPEN CASCADE SAS
 //
 // This file is part of Open CASCADE Technology software library.
 //
@@ -14,37 +11,38 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <BinObjMgt_Position.hxx>
+
+IMPLEMENT_STANDARD_RTTIEXT (BinObjMgt_Position, Standard_Transient)
+
 //=======================================================================
-//function : BRepCheck_Analyzer
+//function : BinObjMgt_Position
 //purpose  : 
 //=======================================================================
-
-inline BRepCheck_Analyzer::BRepCheck_Analyzer (const TopoDS_Shape& S,
-					       const Standard_Boolean B)
-{
-  Init(S,B);
-}
-
-
+BinObjMgt_Position::BinObjMgt_Position (Standard_OStream& theStream) :
+  myPosition (theStream.tellp()), mySize(0)
+{}
 
 //=======================================================================
-//function : Result
+//function : StoreSize
 //purpose  : 
 //=======================================================================
-
-inline const Handle(BRepCheck_Result)& BRepCheck_Analyzer::Result
-   (const TopoDS_Shape& S) const
+void BinObjMgt_Position::StoreSize (Standard_OStream& theStream)
 {
-  return myMap(S);
+  mySize = uint64_t (theStream.tellp() - myPosition);
 }
 
 //=======================================================================
-//function : IsValid
+//function : WriteSize
 //purpose  : 
 //=======================================================================
-
-inline Standard_Boolean BRepCheck_Analyzer::IsValid() const
+void BinObjMgt_Position::WriteSize (Standard_OStream& theStream, const Standard_Boolean theDummy)
 {
-  return IsValid(myShape);
+  if (!theDummy && theStream.tellp() != myPosition)
+    theStream.seekp (myPosition);
+  uint64_t aSize = theDummy ? 0 : mySize;
+#if DO_INVERSE
+  aSize = FSD_BinaryFile::InverseUint64 (aSize);
+#endif
+  theStream.write ((char*)&aSize, sizeof (uint64_t));
 }
-

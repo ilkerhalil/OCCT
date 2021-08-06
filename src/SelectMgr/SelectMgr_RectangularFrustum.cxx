@@ -16,6 +16,7 @@
 #include <SelectMgr_RectangularFrustum.hxx>
 
 #include <BVH_Tools.hxx>
+#include <gp_Pln.hxx>
 #include <NCollection_Vector.hxx>
 #include <Poly_Array1OfTriangle.hxx>
 #include <SelectMgr_FrustumBuilder.hxx>
@@ -225,7 +226,7 @@ namespace
 // =======================================================================
 void SelectMgr_RectangularFrustum::cacheVertexProjections (SelectMgr_RectangularFrustum* theFrustum) const
 {
-  if (theFrustum->myIsOrthographic)
+  if (theFrustum->Camera()->IsOrthographic())
   {
     // project vertices onto frustum normals
     // Since orthographic view volume's faces are always a pairwise translation of
@@ -377,7 +378,7 @@ Handle(SelectMgr_BaseIntersector) SelectMgr_RectangularFrustum::ScaleAndTransfor
     return aRes;
   }
 
-  aRes->myIsOrthographic = myIsOrthographic;
+  aRes->SetCamera (myCamera);
   const SelectMgr_RectangularFrustum* aRef = this;
 
   if (isToScale)
@@ -436,6 +437,8 @@ Handle(SelectMgr_BaseIntersector) SelectMgr_RectangularFrustum::ScaleAndTransfor
     aRes->myScale = Sqrt (aRefScale / aRes->myFarPickedPnt.SquareDistance (aRes->myNearPickedPnt));
   }
 
+  aRes->SetBuilder (theBuilder);
+
   // compute frustum normals
   computeNormals (aRes->myEdgeDirs, aRes->myPlanes);
 
@@ -443,7 +446,6 @@ Handle(SelectMgr_BaseIntersector) SelectMgr_RectangularFrustum::ScaleAndTransfor
 
   aRes->mySelectionType = mySelectionType;
   aRes->mySelRectangle = mySelRectangle;
-  aRes->SetBuilder (theBuilder);
   return aRes;
 }
 
@@ -752,6 +754,48 @@ const gp_Pnt2d& SelectMgr_RectangularFrustum::GetMousePosition() const
 }
 
 // =======================================================================
+// function : OverlapsSphere
+// purpose  :
+// =======================================================================
+Standard_Boolean SelectMgr_RectangularFrustum::OverlapsSphere (const gp_Pnt& theCenter,
+                                                               const Standard_Real theRadius,
+                                                               const SelectMgr_ViewClipRange& theClipRange,
+                                                               SelectBasics_PickResult& thePickResult) const
+{
+  Standard_ASSERT_RAISE (mySelectionType == SelectMgr_SelectionType_Point || mySelectionType == SelectMgr_SelectionType_Box,
+    "Error! SelectMgr_RectangularFrustum::Overlaps() should be called after selection frustum initialization");
+  Standard_Real aTimeEnter = 0.0, aTimeLeave = 0.0;
+  if (!RaySphereIntersection (theCenter, theRadius, myNearPickedPnt, myViewRayDir, aTimeEnter, aTimeLeave))
+  {
+    return Standard_False;
+  }
+
+  thePickResult.SetDepth (aTimeEnter * myScale);
+  if (theClipRange.IsClipped (thePickResult.Depth()))
+  {
+    thePickResult.SetDepth (aTimeLeave * myScale);
+  }
+  gp_Pnt aPntOnSphere (myNearPickedPnt.XYZ() + myViewRayDir.XYZ() * thePickResult.Depth() / myScale);
+  gp_Vec aNormal (aPntOnSphere.XYZ() - theCenter.XYZ());
+  thePickResult.SetPickedPoint (aPntOnSphere);
+  thePickResult.SetSurfaceNormal (aNormal);
+  return !theClipRange.IsClipped (thePickResult.Depth());
+}
+
+// =======================================================================
+// function : OverlapsSphere
+// purpose  :
+// =======================================================================
+Standard_Boolean SelectMgr_RectangularFrustum::OverlapsSphere (const gp_Pnt& theCenter,
+                                                               const Standard_Real theRadius,
+                                                               Standard_Boolean* theInside) const
+{
+  Standard_ASSERT_RAISE (mySelectionType == SelectMgr_SelectionType_Point || mySelectionType == SelectMgr_SelectionType_Box,
+    "Error! SelectMgr_RectangularFrustum::Overlaps() should be called after selection frustum initialization");
+  return hasSphereOverlap (theCenter, theRadius, theInside);
+}
+
+// =======================================================================
 // function : DistToGeometryCenter
 // purpose  : Measures distance between 3d projection of user-picked
 //            screen point and given point theCOG
@@ -787,7 +831,7 @@ void SelectMgr_RectangularFrustum::GetPlanes (NCollection_Vector<SelectMgr_Vec4>
   SelectMgr_Vec4 anEquation;
   for (Standard_Integer aPlaneIdx = 0; aPlaneIdx < 6; ++aPlaneIdx)
   {
-    const gp_Vec& aPlaneNorm = myIsOrthographic && aPlaneIdx % 2 == 1 ?
+    const gp_Vec& aPlaneNorm = Camera()->IsOrthographic() && aPlaneIdx % 2 == 1 ?
       myPlanes[aPlaneIdx - 1].Reversed() : myPlanes[aPlaneIdx];
     anEquation.x() = aPlaneNorm.X();
     anEquation.y() = aPlaneNorm.Y();

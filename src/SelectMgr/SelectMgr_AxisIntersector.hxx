@@ -37,6 +37,10 @@ public:
   //! NOTE: it should be called after Init() method
   Standard_EXPORT virtual void Build() Standard_OVERRIDE;
 
+  //! Saves camera definition.
+  //! Do nothing for axis intersector (not applicable to this volume).
+  Standard_EXPORT virtual void SetCamera (const Handle(Graphic3d_Camera)& theCamera) Standard_OVERRIDE;
+
   //! Returns FALSE (not applicable to this volume).
   virtual Standard_Boolean IsScalable() const Standard_OVERRIDE { return false; }
 
@@ -93,6 +97,19 @@ public:
                                                              Select3D_TypeOfSensitivity theSensType,
                                                              const SelectMgr_ViewClipRange& theClipRange,
                                                              SelectBasics_PickResult& thePickResult) const Standard_OVERRIDE;
+
+  //! Intersection test between defined axis and given sphere with center theCenter
+  //! and radius theRadius
+  Standard_EXPORT virtual Standard_Boolean OverlapsSphere (const gp_Pnt& theCenter,
+                                                           const Standard_Real theRadius,
+                                                           Standard_Boolean* theInside = NULL) const Standard_OVERRIDE;
+
+  //! Intersection test between defined axis and given sphere with center theCenter
+  //! and radius theRadius
+  Standard_EXPORT virtual Standard_Boolean OverlapsSphere (const gp_Pnt& theCenter,
+                                                           const Standard_Real theRadius,
+                                                           const SelectMgr_ViewClipRange& theClipRange,
+                                                           SelectBasics_PickResult& thePickResult) const Standard_OVERRIDE;
 
 public:
 

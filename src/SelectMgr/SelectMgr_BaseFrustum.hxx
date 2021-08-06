@@ -37,26 +37,8 @@ public:
   //! Nullifies the builder created in the constructor and copies the pointer given
   Standard_EXPORT void SetBuilder (const Handle(SelectMgr_FrustumBuilder)& theBuilder);
 
-  //! Return camera definition.
-  virtual const Handle(Graphic3d_Camera)& Camera() const Standard_OVERRIDE { return myCamera; }
-
-  //! Passes camera projection and orientation matrices to builder
+  //! Saves camera definition and passes it to builder
   Standard_EXPORT virtual void SetCamera (const Handle(Graphic3d_Camera)& theCamera) Standard_OVERRIDE;
-
-  //! Passes camera projection and orientation matrices to builder
-  Standard_EXPORT virtual void SetCamera (const Graphic3d_Mat4d& theProjection,
-                                          const Graphic3d_Mat4d& theWorldView,
-                                          const Standard_Boolean theIsOrthographic,
-                                          const Graphic3d_WorldViewProjState& theWVPState = Graphic3d_WorldViewProjState()) Standard_OVERRIDE;
-
-  //! @return current camera projection transformation common for all selecting volumes
-  Standard_EXPORT virtual const Graphic3d_Mat4d& ProjectionMatrix() const Standard_OVERRIDE;
-
-  //! @return current camera world view transformation common for all selecting volumes
-  Standard_EXPORT virtual const Graphic3d_Mat4d& WorldViewMatrix() const Standard_OVERRIDE;
-
-  //! @return current camera world view projection transformation state
-  Standard_EXPORT virtual const Graphic3d_WorldViewProjState& WorldViewProjState() const Standard_OVERRIDE;
 
   Standard_EXPORT virtual void SetPixelTolerance (const Standard_Integer theTol) Standard_OVERRIDE;
 
@@ -72,17 +54,22 @@ public:
                                             const Standard_Real theWidth,
                                             const Standard_Real theHeight) Standard_OVERRIDE;
 
+  //! Checks whether the boundary of the current volume selection intersects with a sphere or are there it's boundaries lying inside the sphere
+  Standard_EXPORT Standard_Boolean IsBoundaryIntersectSphere (const gp_Pnt& theCenter,
+                                                              const Standard_Real theRadius,
+                                                              const gp_Dir& thePlaneNormal,
+                                                              const TColgp_Array1OfPnt& theBoundaries,
+                                                              Standard_Boolean& theBoundaryInside) const;
+
   //! Dumps the content of me into the stream
   Standard_EXPORT virtual void DumpJson (Standard_OStream& theOStream, Standard_Integer theDepth = -1) const Standard_OVERRIDE;
 
   DEFINE_STANDARD_RTTIEXT(SelectMgr_BaseFrustum, SelectMgr_BaseIntersector)
 
 protected:
-  Standard_Integer    myPixelTolerance;      //!< Pixel tolerance
-  Standard_Boolean    myIsOrthographic;      //!< Defines if current camera is orthographic
+  Standard_Integer myPixelTolerance; //!< Pixel tolerance
 
   Handle(SelectMgr_FrustumBuilder) myBuilder; //!< A tool implementing methods for volume build
-  Handle(Graphic3d_Camera)         myCamera;  //!< camera definition
 };
 
 #endif // _SelectMgr_BaseFrustum_HeaderFile
