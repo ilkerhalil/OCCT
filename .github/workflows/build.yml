@@ -21,6 +21,7 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
     - name: Install Depencies
       run: |
+        sudo apt-get update
         sudo apt-get install -y tcl tk-dev build-essential libssl-dev libgl1-mesa-dev ninja-build
         mkdir build
     # - name: Config CMake
