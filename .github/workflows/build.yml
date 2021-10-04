@@ -72,11 +72,11 @@ jobs:
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/lib -force
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/bin -force
 
-    - name: Unzip ccache
-      working-directory: ${{github.workspace}}/3rdparty
-      run: |
-        mkdir ccache
-        Expand-Archive -LiteralPath 'ccache.zip' -DestinationPath ${{github.workspace}}/3rdparty/ccache -Force
+    # - name: Unzip ccache
+    #   working-directory: ${{github.workspace}}/3rdparty
+    #   run: |
+    #     mkdir ccache
+    #     Expand-Archive -LiteralPath 'ccache.zip' -DestinationPath ${{github.workspace}}/3rdparty/ccache -Force
     - name: Install Doxygen
       run: |
         choco install doxygen.install
