@@ -89,9 +89,8 @@ jobs:
     - name: Unzip ccache
       working-directory: ${{github.workspace}}/3rdparty
       run: |
-        mdkir ccache
+        mkdir ccache
         Expand-Archive -LiteralPath 'ccache.zip' -DestinationPath ${{github.workspace}}/3rdparty/ccache -Force
-
     - name: Install Doxygen
       run: |
         choco install doxygen.install
