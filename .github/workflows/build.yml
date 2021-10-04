@@ -72,11 +72,8 @@ jobs:
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/lib -force
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/bin -force
 
-    # - name: Unzip ccache
-    #   working-directory: ${{github.workspace}}/3rdparty
-    #   run: |
-    #     mkdir ccache
-    #     Expand-Archive -LiteralPath 'ccache.zip' -DestinationPath ${{github.workspace}}/3rdparty/ccache -Force
+
+
     - name: Install Doxygen
       run: |
         choco install doxygen.install
@@ -136,10 +133,17 @@ jobs:
         Copy-Item -Path tclstub86.lib -Destination tclstub.lib -force
       working-directory: ${{github.workspace}}/3rdparty/tcltk/lib
 
+    - name: Unzip ccache
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        wget ${{env.uri}} -O ccache.tar.xz
+        tar ccache.tar.xz
+      env:
+        uri: https://github.com/cristianadam/ccache/releases/download/v4.4.1/Windows.tar.xz
+
     - name: Create OCCT Build Environment
       run: mkdir build
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
 
     # - name: Configure OCCT CMake
     #   shell: powershell
