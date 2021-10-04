@@ -138,7 +138,7 @@ jobs:
       shell: bash
       run: |
         curl ${{env.uri}} -o ccache.tar.xz
-        tar ccache.tar.xz
+        tar xf ccache.tar.xz
       env:
         uri: https://github.com/cristianadam/ccache/releases/download/v4.4.1/Windows.tar.xz
 
