@@ -79,6 +79,19 @@ jobs:
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/lib -force
         Copy-Item -Path ${{github.workspace}}\3rdparty\freetype\win64\freetype.lib -Destination freetype/bin -force
 
+    - name: Download ccache Binary
+      working-directory: ${{github.workspace}}
+      run: |
+        Invoke-WebRequest -Uri ${{env.uri}} -OutFile 3rdparty/ccache.zip
+      env:
+        uri: https://github.com/ccache/ccache/releases/download/v4.4.2/ccache-4.4.2-windows-64.zip
+
+    - name: Unzip ccache
+      working-directory: ${{github.workspace}}/3rdparty
+      run: |
+        mdkir ccache
+        Expand-Archive -LiteralPath 'ccache.zip' -DestinationPath ${{github.workspace}}/3rdparty/ccache -Force
+
     - name: Install Doxygen
       run: |
         choco install doxygen.install
@@ -170,6 +183,9 @@ jobs:
         -D3RDPARTY_TK_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib
         -D3RDPARTY_TK_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        -DCCACHE_PATH=D:\a\OCCT\OCCT\3rdparty\ccache\ccache-4.4.2-windows-64\
 
       env:
         GITHUB_WORKSPACE: ${{github.workspace}}
