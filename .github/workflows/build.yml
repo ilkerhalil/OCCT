@@ -137,7 +137,7 @@ jobs:
       working-directory: ${{github.workspace}}
       shell: bash
       run: |
-        wget ${{env.uri}} -O ccache.tar.xz
+        curl ${{env.uri}} -o ccache.tar.xz
         tar ccache.tar.xz
       env:
         uri: https://github.com/cristianadam/ccache/releases/download/v4.4.1/Windows.tar.xz
@@ -211,8 +211,6 @@ jobs:
       run: |
         brew install ninja
         mkdir build
-        # cmake -E make_directory build
-        # cmake . -DCMAKE_BUILD_TYPE=Release -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -GNinja
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
     - name: build with cmake
