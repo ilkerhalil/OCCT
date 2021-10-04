@@ -137,8 +137,8 @@ jobs:
       working-directory: ${{github.workspace}}
       shell: bash
       run: |
-        curl ${{env.uri}} -o ccache.tar.xz
-        tar xf ccache.tar.xz
+        curl -L ${{env.uri}} > ccache.tar.xz
+        tar -xvJf ccache.tar.xz
       env:
         uri: https://github.com/cristianadam/ccache/releases/download/v4.4.1/Windows.tar.xz
 
