@@ -168,23 +168,32 @@ jobs:
     #     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
     #     -DCMAKE_C_COMPILER_LAUNCHER=ccache
     #     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-    - name: build with cmake
-      uses: lukka/run-cmake@v3
-      with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -D3RDPARTY_DIR=D:\a\OCCT\OCCT\3rdparty -D3RDPARTY_FREETYPE_DIR=D:\a\OCCT\OCCT\3rdparty\freetype -D3RDPARTY_FREETYPE_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\include -D3RDPARTY_FREETYPE_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\bin -D3RDPARTY_FREETYPE_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\freetype\bin -D3RDPARTY_TCL_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin -D3RDPARTY_TCL_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib -D3RDPARTY_TCL_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin -D3RDPARTY_TK_INCLUDE_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin -D3RDPARTY_TK_LIBRARY_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\lib -D3RDPARTY_TK_DLL_DIR=D:\a\OCCT\OCCT\3rdparty\tcltk\bin -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache'
-        buildDirectory: '${{ github.workspace }}/build'
-        buildWithCMake: true
+    # - name: build with cmake
+    #   uses: lukka/run-cmake@v3
+    #   with:
+    #     cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+    #     cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+    #     cmakeAppendedArgs: '-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache'
+    #     buildDirectory: '${{ github.workspace }}/build'
+    #     buildWithCMake: true
 
-      env:
-        GITHUB_WORKSPACE: ${{github.workspace}}
+      # env:
+      #   GITHUB_WORKSPACE: ${{github.workspace}}
+    - name: Add Path Msys64 Directory
+      run: |
+        echo "c:\msys64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    - name: Install msys2 dependencies
+      shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
+      run: |
+        pacman -S --noconfirm mingw-w64-x86_64-tcl mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64
+    - name: Configure OCCT CMake
+      shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
+      run: |
+        ${MINGW_PREFIX}/bin/cmake -G "MinGW Makefiles"  -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
-    # - name: Build OCCT
-    #   #working-directory: ${{github.workspace}}/build
-    #   shell: bash
-    #   # Execute the build.  You can specify a specific target with "--target <NAME>"
-    #   run: cmake --build . --config Release
+    - name: Build OCCT
+      shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
+      run: cmake --build . --config Release
 
     - name: Test OCCT
       working-directory: ${{github.workspace}}/build
