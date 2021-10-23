@@ -101,7 +101,7 @@ jobs:
       run: |
         Copy-Item -Path ${{github.workspace}}/StirlingLabs/tcl/win/* -Destination 3rdparty/tcl/win -force
         Copy-Item -Path ${{github.workspace}}/StirlingLabs/tk/win/* -Destination 3rdparty/tk/win -force
-        New-Item -Path ${{github.workspace}}/3rdparty -Name tcltk -ItemType "directory"
+        New-Item -ErrorAction Ignore -Path ${{github.workspace}}/3rdparty -Name tcltk -ItemType "directory"
 
     - name: Build & Install Tcl
       run: |
