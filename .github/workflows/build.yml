@@ -78,7 +78,7 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: ${{github.workspace}}/3rdparty/
-        key: ${{ runner.os }}-cache-3rdparty
+        key: ${{ runner.os }}-cache-3rdparty-${{ hashFiles('./3rdparty') }}
     - name: Get Tcl Source
       uses: actions/checkout@v2
       with:
