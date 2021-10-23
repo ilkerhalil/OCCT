@@ -140,7 +140,7 @@ jobs:
     - name: Install ccache
       shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
       run: |
-        pacman -S mingw-w64-x86_64-ccache
+        pacman -S --noconfirm mingw-w64-x86_64-ccache
 
     - name: Configure OCCT CMake
       shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
