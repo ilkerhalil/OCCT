@@ -78,8 +78,7 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: |
-          ${{github.workspace}}/3rdparty/
-
+          ${{github.workspace}}\3rdparty\
         key: ${{ runner.os }}-cache-3rdparty-${{ hashFiles('./3rdparty') }}
     - name: Get Tcl Source
       uses: actions/checkout@v2
@@ -146,14 +145,16 @@ jobs:
       shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
       run: |
         pacman -S --noconfirm mingw-w64-x86_64-ccache
-    - name: PWD
-      shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
-      run: |
-        ls ~/cacche
+
     - name: Configure OCCT CMake
       shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
       run: |
         ${MINGW_PREFIX}/bin/cmake -G "MinGW Makefiles"  -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DUSE_FREEIMAGE:BOOL=OFF -DUSE_RAPIDJSON:BOOL=OFF -DUSE_TBB:BOOL=OFF -DUSE_VTK:BOOL=OFF -D3RDPARTY_DIR=/D/a/OCCT/OCCT/3rdparty -D3RDPARTY_FREETYPE_DIR=/D/a/OCCT/OCCT/3rdparty/freetype -D3RDPARTY_FREETYPE_INCLUDE_DIR=/D/a/OCCT/OCCT/3rdparty/freetype/include -D3RDPARTY_FREETYPE_LIBRARY_DIR=/D/a/OCCT/OCCT/3rdparty/freetype/bin -D3RDPARTY_FREETYPE_DLL_DIR=/D/a/OCCT/OCCT/3rdparty/freetype/bin -D3RDPARTY_TCL_INCLUDE_DIR=/D/a/OCCT/OCCT/3rdparty/tcltk/bin -D3RDPARTY_TCL_LIBRARY_DIR=/D/a/OCCT/OCCT/3rdparty/tcltk/lib -D3RDPARTY_TCL_DLL_DIR=/D/a/OCCT/OCCT/3rdparty/tcltk/bin -D3RDPARTY_TK_INCLUDE_DIR=/D/a/OCCT/OCCT/3rdparty/tcltk/bin -D3RDPARTY_TK_LIBRARY_DIR=/D/a/OCCT/OCCT/3rdparty/tcltk/lib -D3RDPARTY_TK_DLL_DIR=/D/a/OCCT/OCCT/3rdparty/tcltk/bin -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+    - uses: actions/cache@v2
+      with:
+        path: |
+          c:\msys64\home\runneradmin\
+        key: ${{ runner.os }}-cache-ccache
     - name: Build OCCT
       shell: msys2_shell.cmd -defterm -no-start -here -mingw64 {0}
       run: cmake --build . --config Release -j4
