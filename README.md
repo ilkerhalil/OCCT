@@ -84,6 +84,7 @@ Version
 
 The current version of OCCT can be consulted in the file
 *src/Standard/Standard_Version.hxx*
+test
 
 Development
 -----------
